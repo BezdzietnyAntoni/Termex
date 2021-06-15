@@ -21,5 +21,4 @@ Example reset FFC:
 ```
 rostopic pub -1 comand_console std_msgs/String "FFC"
 ```
-
-![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
+[![a3068.th.gif](https://s6.gifyu.com/images/a3068.th.gif)](https://gifyu.com/image/13ep)
