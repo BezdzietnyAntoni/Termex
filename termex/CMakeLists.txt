@@ -164,10 +164,6 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-    scripts/listener.py
-    scripts/blobs_rellocation.py
-    scripts/visualization.py
-    scripts/calculate_rellocation.py
     scripts/termexRelocationBlobs.py
     scripts/termexVisualization.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -223,13 +219,13 @@ set(PRV
         src/SPI.cpp
         src/SPI.h)
         
-add_executable(talker src/talker.cpp ${PRV})
-target_link_libraries(talker ${CMAKE_CURRENT_SOURCE_DIR}/src/leptonSDK/libLEPTON_SDK.a)
-target_link_libraries(talker ${catkin_LIBRARIES})
+add_executable(termexLeptonCapture src/termexLeptonCapture.cpp ${PRV})
+target_link_libraries(termexLeptonCapture ${CMAKE_CURRENT_SOURCE_DIR}/src/leptonSDK/libLEPTON_SDK.a)
+target_link_libraries(termexLeptonCapture ${catkin_LIBRARIES})
 
 find_package(OpenCV)
 include_directories(${OpenCV_INCLUDE_DIRS})
-target_link_libraries(talker ${OpenCV_LIBRARIES})
+target_link_libraries(termexLeptonCapture ${OpenCV_LIBRARIES})
 
 
 

@@ -5,6 +5,8 @@ import cv2 as cv
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from std_msgs.msg import Int8MultiArray
+import message_filters #here
+
 
 
 
@@ -14,16 +16,19 @@ class VisualizationVectors:
 		self.vector_matrix = None
 		self.treshold = 10
 		self.scale = 5
+		self._lastTime = None
 		
-		# get current image rescale and display vector on it 
-		# TODO get image with the smame time stemp 
+
 		self.bridge = CvBridge()
-		self.image_sub = rospy.Subscriber("/lepton_output", Image, self.callbackImage)
+		#self.image_sub = rospy.Subscriber("/lepton_output", Image, self.callbackImage)
+		self.sub = message_filters.Subscriber("/lepton_output", Image)
+		self.cache = message_filters.Cache(self.sub, 10)
 		
 		self.vector_sub = rospy.Subscriber("/relocation_array", Int8MultiArray, self.callbackVector)
 		
 		self.image_pub = rospy.Publisher("/image_vector", Image, queue_size=10)
 		
+	#unused
 	def callbackImage(self, data):
 		try:
 			self.raw_image = self.bridge.imgmsg_to_cv2(data,"mono16")
@@ -34,6 +39,12 @@ class VisualizationVectors:
 	def callbackVector(self, data):
 		# when vector message come
 		self.vector_matrix = data
+		secs  = int(data.layout.dim[1].label[0:10])
+		nsecs = int(data.layout.dim[1].label[10:])
+		self._lastTime = rospy.Time(secs, nsecs)
+		
+		data = self.cache.getElemBeforeTime(self._lastTime)
+		self.raw_image = self.bridge.imgmsg_to_cv2(data,"mono16")
 		self.prepareVisualization()
 		
 		

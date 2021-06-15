@@ -113,8 +113,9 @@ class RelocationBlobs():
 	def __init__(self):
 		self.previous_image = None
 		self.inProcess = False
-		self.blob_size = 44;
-		self.distance = (10,12)
+		self.blob_size = 40;
+		self.distance = (6,8)
+
 		
 		#create instance of correlation class
 		self.termex_cor = TermexCorr(blob_size=self.blob_size, distance_between_blobs=self.distance)
@@ -130,8 +131,9 @@ class RelocationBlobs():
 
 	def callback(self, data):
 	    try:
-	        cv_image = self.bridge.imgmsg_to_cv2(data,"mono16")
-	        self.handleNewRellocation(cv_image)
+	        #cv_image = self.bridge.imgmsg_to_cv2(data,"mono16")
+	        #self.handleNewRellocation(cv_image)
+	        self.handleNewRellocation(data)
 	    except CvBridgeError as e:
 	        print(e)
 	      
@@ -142,16 +144,17 @@ class RelocationBlobs():
 		self.matrix.layout.dim[0].label = "n_blobs"
 		self.matrix.layout.dim[0].size = n_blobs
 		self.matrix.layout.dim[0].stride = n_blobs*5
-		self.matrix.layout.dim[1].label = "position"
+		self.matrix.layout.dim[1].label = "time"
 		self.matrix.layout.dim[1].size = 5
 		self.matrix.layout.dim[1].stride = self.blob_size
 		self.matrix.layout.data_offset = 0 
 		  
-	def handleNewRellocation(self, current_image):
+	def handleNewRellocation(self, data):
 	    #if still calculate get current and wait for next
 	    if self.inProcess:
 	        return
 	        
+	    current_image = self.bridge.imgmsg_to_cv2(data,"mono16")
 	    #if its first image save prepare settings for message and return
 	    if self.previous_image is None:
 	        self.previous_image = current_image
@@ -165,6 +168,7 @@ class RelocationBlobs():
 		#calculate rellocation
 	    self.calculateRellocation(current_image)
 	    self.createMessage()
+	    self.matrix.layout.dim[1].label = str(data.header.stamp)
 	    self.vector_pub.publish(self.matrix)
 	    
 	    #after calculate and sending vector save current as prev
